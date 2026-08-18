@@ -9,21 +9,27 @@ from src.tools.tools import scrape_url, web_search
 load_dotenv()
 
 llm = ChatGroq(
-    model="openai/gpt-oss-120b"
+    model="qwen/qwen3.6-27b"
 )
 
+# 1st Agent : Search Agent
 def build_search_agent():
     return create_agent(
-        model = llm,
-        tools=[web_search]
+        model= llm,
+        tools=[web_search],
+       
     )
 
+# 2nd Agent : Reader Agent
 def build_reader_agent():
     return create_agent(
-        model = llm,
-        tools=[scrape_url]
+        model= llm,
+        tools=[scrape_url],
+
     )
 
+
+#writer chain 
 
 writer_prompt = ChatPromptTemplate.from_messages([
     ("system", "You are an expert research writer. Write clear, structured and insightful reports."),
@@ -46,8 +52,12 @@ Be detailed, factual and professional."""),
 writer_chain = writer_prompt | llm | StrOutputParser()
 
 
+
+
+#critic_chain 
+
 critic_prompt = ChatPromptTemplate.from_messages([
-    ("system", "You are a sharp and constructive research critic. Be honest and specific."),
+     ("system", "You are a sharp and constructive research critic. Be honest and specific."),
     ("human", """Review the research report below and evaluate it strictly.
 
 Report:
